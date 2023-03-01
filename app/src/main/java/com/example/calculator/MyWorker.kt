@@ -9,75 +9,59 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.*
-import com.example.calculator.databinding.ActivityMainBinding
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity() {
+class MyWorker(context: Context, workerParameters: WorkerParameters) :
+    Worker(context, workerParameters) {
 
-    lateinit var binding: ActivityMainBinding
+    companion object {
+        const val CHANNEl_ID = "channel"
+        const val NOTIFICATION = 1
+    }
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    var latitude: String = "latitude"
-    var longitude: String = "longitude"
-    private val permissionCode = 101
+    var latitude: String = ""
+    var longitude: String = ""
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun doWork(): Result {
+        Log.d("doWork", "success called")
         findLocation()
-        binding.apply {
-            btnPeriodic.setOnClickListener {
-                myPeriodicWork()
-            }
-        }
+
+        return Result.success()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun findLocation() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
 
         if (ActivityCompat.checkSelfPermission(
-                this,
+                applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
+                applicationContext,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                permissionCode
-            )
+            Log.d("doWork", "first")
+            return
         } else {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    Log.d("latitude", location.toString())
-                    latitude = location.latitude.toString()
-                    longitude = location.longitude.toString()}
-                    showNotification()
-                }
-
-
-            /*fusedLocationClient.getCurrentLocation(
-                LocationRequest.PRIORITY_HIGH_ACCURACY,
+            Log.d("doWork", "second")
+            Log.d("doWork", fusedLocationClient.lastLocation.getResult().toString())
+            fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
                 object : CancellationToken() {
                     override fun onCanceledRequested(listener: OnTokenCanceledListener) =
                         CancellationTokenSource().token
@@ -85,33 +69,18 @@ class MainActivity : AppCompatActivity() {
                     override fun isCancellationRequested() = false
                 })
                 .addOnSuccessListener {
-                    if (it == null)
-                        Toast.makeText(this, "Cannot get location.", Toast.LENGTH_SHORT).show()
-                    else {
+                    Log.d("doWork", it.toString())
+                    if (it != null) {
                         latitude = it.latitude.toString()
                         longitude = it.longitude.toString()
                         showNotification()
                     }
-                }*/
+                }
         }
     }
 
-    private fun myPeriodicWork() {
-        val constaints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-            .build()
 
-        val myWorkRequest =
-            PeriodicWorkRequest.Builder(MyWorker::class.java, 15, TimeUnit.MINUTES)
-                .setConstraints(constaints)
-                .addTag("my_id")
-                .build()
-
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork("my_id", ExistingPeriodicWorkPolicy.KEEP, myWorkRequest)
-    }
-
-
+    //@SuppressLint("UnspecifiedImmutableFlag")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotification() {
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
@@ -119,14 +88,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         val pendingIntent =
-            PendingIntent.getActivity(
-                applicationContext,
-                0,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        val notification = Notification.Builder(applicationContext, MyWorker.CHANNEl_ID)
+        val notification = Notification.Builder(applicationContext, CHANNEl_ID)
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("NewTask")
             .setContentText(latitude + "\n" + longitude)
@@ -139,17 +103,16 @@ class MainActivity : AppCompatActivity() {
             val channelDescription = "channel Description"
             val channelImportance = NotificationManager.IMPORTANCE_HIGH
 
-            val channel =
-                NotificationChannel(MyWorker.CHANNEl_ID, channelName, channelImportance).apply {
-                    description = channelDescription
-                }
+            val channel = NotificationChannel(CHANNEl_ID, channelName, channelImportance).apply {
+                description = channelDescription
+            }
 
             val notificationManager =
                 applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
         with(NotificationManagerCompat.from(applicationContext)) {
-            notify(MyWorker.NOTIFICATION, notification.build())
+            notify(NOTIFICATION, notification.build())
         }
     }
 }
