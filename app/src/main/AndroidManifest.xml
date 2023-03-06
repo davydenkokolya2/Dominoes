@@ -30,6 +30,16 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <receiver
+            android:name=".ActivityTransitionReceiver"
+            android:exported="false"
+            android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION">
+            <intent-filter>
+                <action android:name="com.example.calculator.ACTION_PROCESS_ACTIVITY_TRANSITIONS"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
