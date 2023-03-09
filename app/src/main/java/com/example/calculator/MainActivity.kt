@@ -3,6 +3,7 @@ package com.example.calculator
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -32,10 +33,10 @@ class MainActivity : AppCompatActivity() {
             broadcast,
             IntentFilter("com.example.myapplication.ACTION_PROCESS_ACTIVITY_TRANSITIONS")
         )*/
-
+        requestForUpdates()
         findViewById<Switch>(R.id.switch1).setOnCheckedChangeListener { _, isChecked ->
             if (isChecked)
-                requestForUpdates()
+
             else
                 Log.d("doWork", "disabled")
         }
@@ -47,13 +48,6 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACTIVITY_RECOGNITION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         } else {
             client
@@ -61,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     ActivityTransitionUtil.getTransitionRequest(),
                     getPendingIntent()
                 )
-                //.requestActivityUpdates(10000, getPendingIntent())
+                //.requestActivityUpdates(1000, getPendingIntent())
                 .addOnSuccessListener {
                     Log.d("doWork", "Yes")
                     Toast.makeText(this, "Success", Toast.LENGTH_LONG).show()
@@ -79,8 +73,10 @@ class MainActivity : AppCompatActivity() {
             this,
             255,
             intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
+
+        this.registerReceiver(ActivityTransitionReceiver(), IntentFilter(TRANSITIONS_RECEIVER_ACTION))
         //Log.d("doWork", pendingIntent.creatorPackage.toString())
         return pendingIntent
     }
