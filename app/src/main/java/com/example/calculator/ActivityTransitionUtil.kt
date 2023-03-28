@@ -1,10 +1,8 @@
 package com.example.calculator
 
-import android.util.Log
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
-
 
 object ActivityTransitionUtil {
 
