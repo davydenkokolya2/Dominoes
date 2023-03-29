@@ -1,11 +1,19 @@
 package com.example.calculator
 
-import android.os.Build
+
+import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.RequiresApi
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.*
 import com.example.calculator.databinding.ActivityMainBinding
+import com.example.calculator.recognition.ActivityRecognition
+import com.example.calculator.recognition.ActivityTransitionReceiver
+import com.google.android.gms.common.internal.safeparcel.SafeParcelableSerializer
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionEvent
+import com.google.android.gms.location.ActivityTransitionResult
+import com.google.android.gms.location.DetectedActivity
 import java.util.concurrent.TimeUnit
 
 
@@ -16,8 +24,9 @@ class MainActivity : AppCompatActivity() {
     //private val TRANSITIONS_RECEIVER_ACTION = "com.example.TRANSITIONS_RECEIVER_ACTION"
 
     lateinit var binding: ActivityMainBinding
+    private val TRANSITIONS_RECEIVER_ACTION =
+        BuildConfig.APPLICATION_ID + ".TRANSITIONS_RECEIVER_ACTION"
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,8 +38,53 @@ class MainActivity : AppCompatActivity() {
                 myPeriodicWork()
             }
         }
+
         val activityRecognition = ActivityRecognition(this)
         activityRecognition.startActivityRecognition()
+
+        //val intent = Intent(this, ForegroundService::class.java)
+
+        //startForegroundService(intent)
+
+        val intent = Intent(this, ActivityTransitionReceiver::class.java)
+
+        // Your broadcast receiver action
+
+        intent.action = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION"
+        val events: ArrayList<ActivityTransitionEvent> = arrayListOf()
+
+        // You can set desired events with their corresponding state
+        val transitionEventStart = ActivityTransitionEvent(
+            DetectedActivity.IN_VEHICLE,
+            ActivityTransition.ACTIVITY_TRANSITION_ENTER,
+            SystemClock.elapsedRealtimeNanos()
+        )
+        val transitionEventStop = ActivityTransitionEvent(
+            DetectedActivity.IN_VEHICLE,
+            ActivityTransition.ACTIVITY_TRANSITION_EXIT,
+            SystemClock.elapsedRealtimeNanos()
+        )
+        binding.btnStart.setOnClickListener {
+            events.add(transitionEventStart)
+            val result = ActivityTransitionResult(events)
+            SafeParcelableSerializer.serializeToIntentExtra(
+                result,
+                intent,
+                "com.google.android.location.internal.EXTRA_ACTIVITY_TRANSITION_RESULT"
+            )
+            this.sendBroadcast(intent)
+        }
+        binding.btnStop.setOnClickListener {
+            events.add(transitionEventStop)
+            val result = ActivityTransitionResult(events)
+            SafeParcelableSerializer.serializeToIntentExtra(
+                result,
+                intent,
+                "com.google.android.location.internal.EXTRA_ACTIVITY_TRANSITION_RESULT"
+            )
+            this.sendBroadcast(intent)
+        }
+
     }
 
     private fun myPeriodicWork() {

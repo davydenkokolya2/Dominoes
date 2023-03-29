@@ -1,4 +1,4 @@
-package com.example.calculator
+package com.example.calculator.recognition
 
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
