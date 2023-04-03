@@ -12,7 +12,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.example.calculator.BuildConfig
 import com.example.calculator.MainActivity
-import com.example.calculator.MyJobIntentService
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
 
@@ -40,11 +39,7 @@ class ActivityRecognition(private val activity: MainActivity) {
                     pendingIntent
                 )
                 .addOnSuccessListener {
-/*Log.d("doWork", "registration receiver " + this.registerReceiver(
-            ActivityTransitionReceiver(),
-            IntentFilter(TRANSITIONS_RECEIVER_ACTION)
-        ).toString()
-        )*/
+
                     Log.d("doWork", "Success")
                     Toast.makeText(activity, "Success", Toast.LENGTH_LONG).show()
                 }
@@ -82,14 +77,19 @@ class ActivityRecognition(private val activity: MainActivity) {
             PendingIntent.getBroadcast(activity, 1200, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }*/
 
-
-
         Log.d(
+            "doWork", "registration receiver " + activity.registerReceiver(
+                ActivityTransitionReceiver(),
+                IntentFilter(TRANSITIONS_RECEIVER_ACTION)
+            ).toString()
+        )
+
+        /*Log.d(
             "doWork", "airplane receiver " + activity.registerReceiver(
                 MyJobIntentService(),
                 IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED)
             ).toString()
-        )
+        )*/
 
         return pendingIntent
     }

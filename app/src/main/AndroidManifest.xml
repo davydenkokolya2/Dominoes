@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Required for 29+. -->
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
@@ -12,7 +14,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -46,7 +47,11 @@
             android:exported="true"
             tools:ignore="ExportedReceiver" />
         <service
-            android:name=".ForegroundService"
+            android:name=".service.ForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+        <service
+            android:name=".service.ForegroundSOSService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
     </application>

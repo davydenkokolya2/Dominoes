@@ -1,28 +1,31 @@
 package com.example.calculator
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.*
 import com.example.calculator.databinding.ActivityMainBinding
 import com.example.calculator.recognition.ActivityRecognition
-import com.example.calculator.recognition.ActivityTransitionReceiver
+import com.example.calculator.remote.common.Common
+import com.example.calculator.service.ForegroundService
 import com.google.android.gms.common.internal.safeparcel.SafeParcelableSerializer
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.concurrent.TimeUnit
-
 
 class MainActivity : AppCompatActivity() {
 
     /*private val TRANSITIONS_RECEIVER_ACTION =
         BuildConfig.APPLICATION_ID + ".ActivityTransitionReceiver"*/
     //private val TRANSITIONS_RECEIVER_ACTION = "com.example.TRANSITIONS_RECEIVER_ACTION"
-
+    private val mService = Common.retrofitService
     lateinit var binding: ActivityMainBinding
     private val TRANSITIONS_RECEIVER_ACTION =
         BuildConfig.APPLICATION_ID + ".TRANSITIONS_RECEIVER_ACTION"
@@ -33,22 +36,30 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.apply {
+        /*binding.apply {
             btnPeriodic.setOnClickListener {
                 myPeriodicWork()
             }
-        }
+        }*/
 
         val activityRecognition = ActivityRecognition(this)
         activityRecognition.startActivityRecognition()
 
-        //val intent = Intent(this, ForegroundService::class.java)
+        val intent = Intent(this, ForegroundService::class.java)
+        binding.btnPeriodic.setOnClickListener {
+            Log.d("doWork", stopService(intent).toString())
+        }
+        startForegroundService(intent)
+        mService.getAccounts().enqueue(object : Callback<Boolean> {
+            override fun onFailure(call: Call<Boolean>, t: Throwable) {
+                Log.d("doWork", t.toString())
+            }
 
-        //startForegroundService(intent)
-
-        val intent = Intent(this, ActivityTransitionReceiver::class.java)
-
-        // Your broadcast receiver action
+            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
+                Log.d("doWork", response.toString())
+            }
+        })
+        //val intent = Intent(this, ActivityTransitionReceiver::class.java)
 
         intent.action = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION"
         val events: ArrayList<ActivityTransitionEvent> = arrayListOf()
