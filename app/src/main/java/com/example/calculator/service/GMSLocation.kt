@@ -3,23 +3,20 @@ package com.example.calculator.service
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.example.calculator.remote.common.Common
+import com.example.calculator.remote.OkHttp.Okhttp
 import com.example.calculator.remote.model.Geolocation
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.LocalTime
 
 class GMSLocation(private val service: ForegroundSOSService) {
-    private val mService = Common.retrofitService
-    fun findLocation() {
+
+    fun findLocation(sos: Boolean) {
 
         val fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(service)
@@ -32,10 +29,10 @@ class GMSLocation(private val service: ForegroundSOSService) {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("doWork", "first")
+            //Log.d("doWork", "first")
             /*return locationDTO*/
         } else {
-            Log.d("doWork", "second")
+            //Log.d("doWork", "second")
             /*Log.d("doWork",
                 fusedLocationClient.lastLocation.addOnSuccessListener{Log.d("doWork", it.longitude.toString())}
                     .toString()
@@ -52,22 +49,22 @@ class GMSLocation(private val service: ForegroundSOSService) {
                 .addOnSuccessListener {
                     if (it != null) {
                         Log.d("doWork", "inListener " + it.toString())
-                        Toast.makeText(
+                        /*Toast.makeText(
                             service,
                             it.longitude.toString() + " " + it.latitude.toString(),
                             Toast.LENGTH_LONG
-                        ).show()
+                        ).show()*/
 
-                        mService.sendGeolocation(Geolocation(it.latitude, it.longitude, true, time = LocalDateTime.now().toString())).enqueue(object : Callback<Boolean> {
-                            override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                                Log.d("doWork", t.toString())
-                            }
-
-                            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                                Log.d("doWork", response.toString() + call.toString())
-                            }
-                        })
-
+                        val okHttpClient = Okhttp()
+                        okHttpClient.sendGeolocation(
+                            Geolocation(
+                                it.latitude,
+                                it.longitude,
+                                sos,
+                                time = LocalTime.now().toString(),
+                                date = LocalDate.now().toString()
+                            )
+                        )
                     }
                 }
         }

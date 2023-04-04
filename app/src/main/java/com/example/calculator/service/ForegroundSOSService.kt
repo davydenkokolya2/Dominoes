@@ -14,11 +14,14 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import com.example.calculator.Constants
-import com.example.calculator.LocationDTO
+import com.example.calculator.utils.Constants
+import com.example.calculator.DTO.LocationDTO
 import com.example.calculator.R
+import com.example.calculator.remote.OkHttp.Okhttp
+import java.util.*
+import kotlin.concurrent.timer
 
-class ForegroundSOSService : Service(), SensorEventListener {
+class ForegroundSOSService() : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -27,6 +30,8 @@ class ForegroundSOSService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var sensor: Sensor
     private val gmsLocation = GMSLocation(this)
+    private val okhttp = Okhttp()
+    private val timer = Timer()
 
 
     override fun onCreate() {
@@ -52,14 +57,25 @@ class ForegroundSOSService : Service(), SensorEventListener {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
+        okhttp.listenServer()
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        timer.scheduleAtFixedRate( object : TimerTask() {
+            override fun run() {
+                gmsLocation.findLocation(false)
+            }
+        }, 0, 120000)
+        return super.onStartCommand(intent, flags, startId)
+    }
     override fun onSensorChanged(event: SensorEvent?) {
+
+
         if (event != null) {
-            if (Math.abs(event.values[0]) > 15 || Math.abs(event.values[1]) > 10 || Math.abs(event.values[2]) > 10) {
+            if (Math.abs(event.values[0]) > 10 || Math.abs(event.values[1]) > 10 || Math.abs(event.values[2]) > 10) {
                 Log.d("doWork", "SOS")
                 //gmsLocationViewModel.findLocation()
-                gmsLocation.findLocation()
+                gmsLocation.findLocation(true)
 
                 if (this::locationDTO.isInitialized)
                     Log.d("doWork", locationDTO.toString())
@@ -78,6 +94,8 @@ class ForegroundSOSService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         sensorManager.unregisterListener(this)
+        okhttp.closeConnection()
+        timer.cancel()
         Log.d("doWork", "kill SOS service")
         Toast.makeText(this, "kill SOS service", Toast.LENGTH_LONG).show()
         super.onDestroy()

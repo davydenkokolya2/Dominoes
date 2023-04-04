@@ -12,7 +12,7 @@ import com.google.android.gms.location.ActivityTransitionResult
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-
+        val intentForeground = Intent(context, ForegroundSOSService::class.java)
         val result = ActivityTransitionResult.extractResult(intent!!)
         result?.let {
             result.transitionEvents.forEach { event ->
@@ -20,12 +20,10 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     "Transition ${ActivityTransitionUtil.toActivityString(event.activityType)} - ${
                         ActivityTransitionUtil.toTransitionType(event.transitionType)
                     }"
-                val intentForegound = Intent(context, ForegroundSOSService::class.java)
-
                 if (event.transitionType == 0 && event.activityType == 0)
-                    context?.startForegroundService(intentForegound)
+                    context?.startForegroundService(intentForeground)
                 else
-                    context?.stopService(intentForegound)
+                    context?.stopService(intentForeground)
 
                 Toast.makeText(context, info, Toast.LENGTH_LONG).show()
                 Log.d("doWork", info)

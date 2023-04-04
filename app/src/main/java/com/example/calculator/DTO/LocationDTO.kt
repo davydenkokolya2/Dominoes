@@ -1,4 +1,4 @@
-package com.example.calculator
+package com.example.calculator.DTO
 
 data class LocationDTO(
     var sos: Boolean,

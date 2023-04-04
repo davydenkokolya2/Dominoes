@@ -10,7 +10,7 @@ interface RetrofitService {
     @POST("geolocation")
     fun sendGeolocation(@Body geolocation: Geolocation): Call<Boolean>
 
-    @GET("/loginn/")
+    @GET("/loginn")
     fun getAccounts(): Call<Boolean>
 
     /*@GET("api/loginn")

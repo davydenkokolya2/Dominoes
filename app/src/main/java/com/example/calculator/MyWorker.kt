@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -55,11 +54,11 @@ class MyWorker(context: Context, workerParameters: WorkerParameters) :
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("doWork", "first")
+            //Log.d("doWork", "first")
             return
         } else {
-            Log.d("doWork", "second")
-            Log.d("doWork", fusedLocationClient.lastLocation.getResult().toString())
+            //Log.d("doWork", "second")
+            //Log.d("doWork", fusedLocationClient.lastLocation.getResult().toString())
             fusedLocationClient.getCurrentLocation(
                 LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
                 object : CancellationToken() {
