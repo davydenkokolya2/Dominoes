@@ -6,16 +6,21 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.calculator.remote.OkHttp.Okhttp
 import com.example.calculator.remote.model.Geolocation
+import com.example.calculator.viewModel.UserIdViewModel
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
-class GMSLocation(private val service: ForegroundSOSService) {
+class GMSLocation(private val service: ForegroundSOSService, private val okHttpClient: Okhttp) {
 
+    //val okHttpClient = Okhttp(service)
     fun findLocation(sos: Boolean) {
 
         val fusedLocationClient =
@@ -54,17 +59,22 @@ class GMSLocation(private val service: ForegroundSOSService) {
                             it.longitude.toString() + " " + it.latitude.toString(),
                             Toast.LENGTH_LONG
                         ).show()*/
-
-                        val okHttpClient = Okhttp()
-                        okHttpClient.sendGeolocation(
-                            Geolocation(
-                                it.latitude,
-                                it.longitude,
-                                sos,
-                                time = LocalTime.now().toString(),
-                                date = LocalDate.now().toString()
-                            )
-                        )
+                        val latitude = it.latitude
+                        val longitude = it.longitude
+                        CoroutineScope(Dispatchers.IO).launch {
+                            UserIdViewModel.stateUserId.collect {
+                                okHttpClient.sendGeolocation(
+                                    Geolocation(
+                                        latitude,
+                                        longitude,
+                                        sos,
+                                        time = LocalTime.now().toString(),
+                                        date = LocalDate.now().toString(),
+                                        userId = it.toInt()
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
         }

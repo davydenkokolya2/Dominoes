@@ -14,12 +14,12 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import com.example.calculator.utils.Constants
 import com.example.calculator.DTO.LocationDTO
 import com.example.calculator.R
 import com.example.calculator.remote.OkHttp.Okhttp
+import com.example.calculator.utils.Constants
+import com.example.calculator.viewModel.GeolocationViewModel
 import java.util.*
-import kotlin.concurrent.timer
 
 class ForegroundSOSService() : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? {
@@ -29,9 +29,10 @@ class ForegroundSOSService() : Service(), SensorEventListener {
     private lateinit var locationDTO: LocationDTO
     private lateinit var sensorManager: SensorManager
     private lateinit var sensor: Sensor
-    private val gmsLocation = GMSLocation(this)
-    private val okhttp = Okhttp()
+    private val okhttp = Okhttp(this)
+    private val gmsLocation = GMSLocation(this, okhttp)
     private val timer = Timer()
+    //val geolocationViewModel = GeolocationViewModel()
 
 
     override fun onCreate() {
@@ -57,7 +58,9 @@ class ForegroundSOSService() : Service(), SensorEventListener {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
+
         okhttp.listenServer()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -72,7 +75,8 @@ class ForegroundSOSService() : Service(), SensorEventListener {
 
 
         if (event != null) {
-            if (Math.abs(event.values[0]) > 10 || Math.abs(event.values[1]) > 10 || Math.abs(event.values[2]) > 10) {
+            GeolocationViewModel.loadGeolocation(event)
+            if (Math.abs(event.values[0]) > 20 || Math.abs(event.values[1]) > 20 || Math.abs(event.values[2]) > 20) {
                 Log.d("doWork", "SOS")
                 //gmsLocationViewModel.findLocation()
                 gmsLocation.findLocation(true)
