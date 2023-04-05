@@ -37,8 +37,18 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-        val okhttp = Okhttp()
-        okhttp.registration(UserDTO("Nick", "D", "1234@gmail.com", "1234"))
+        binding.btnRegistration.setOnClickListener {
+            val okhttp = Okhttp()
+            okhttp.registration(
+                UserDTO(
+                    binding.etFirstName.text.toString(),
+                    binding.etLastName.text.toString(),
+                    binding.etEmail.text.toString(),
+                    binding.etPassword.text.toString()
+                )
+            )
+        }
+
 
         val activityRecognition = ActivityRecognition(this)
         activityRecognition.startActivityRecognition()
