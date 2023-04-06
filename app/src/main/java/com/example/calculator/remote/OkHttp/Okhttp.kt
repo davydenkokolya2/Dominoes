@@ -178,6 +178,7 @@ class Okhttp() {
     }
 
     fun closeConnection() {
-        eventSourceListener.onClosed(eventSource)
+        eventSource.cancel()
+        //okhttpClient.dispatcher.executorService.shutdown();
     }
 }
