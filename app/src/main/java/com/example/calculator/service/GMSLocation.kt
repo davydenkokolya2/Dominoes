@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.calculator.remote.OkHttp.Okhttp
 import com.example.calculator.remote.model.Geolocation
-import com.example.calculator.viewModel.UserIdViewModel
+import com.example.calculator.viewModel.TokenViewModel
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
@@ -62,7 +62,7 @@ class GMSLocation(private val service: ForegroundSOSService, private val okHttpC
                         val latitude = it.latitude
                         val longitude = it.longitude
                         CoroutineScope(Dispatchers.IO).launch {
-                            UserIdViewModel.stateUserId.collect {
+                            TokenViewModel.stateUserId.collect {
                                 okHttpClient.sendGeolocation(
                                     Geolocation(
                                         latitude,
@@ -70,7 +70,7 @@ class GMSLocation(private val service: ForegroundSOSService, private val okHttpC
                                         sos,
                                         time = LocalTime.now().toString(),
                                         date = LocalDate.now().toString(),
-                                        userId = it.toInt()
+                                        userId = it!!.userId
                                     )
                                 )
                             }

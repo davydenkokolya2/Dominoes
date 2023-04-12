@@ -56,7 +56,7 @@ class ForegroundSOSService() : Service(), SensorEventListener {
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
 
 
         okhttp.listenServer()
@@ -69,6 +69,17 @@ class ForegroundSOSService() : Service(), SensorEventListener {
                 gmsLocation.findLocation(false)
             }
         }, 0, 120000)
+        /*CoroutineScope(Dispatchers.IO).launch {
+            UserViewModel.stateUser.collect {
+                timer.scheduleAtFixedRate(object : TimerTask() {
+                    override fun run() {
+                        if (it != null) {
+                            okhttp.registration(it)
+                        }
+                    }
+                }, 0, 540000)
+            }
+        }*/
         return super.onStartCommand(intent, flags, startId)
     }
     override fun onSensorChanged(event: SensorEvent?) {
@@ -76,7 +87,7 @@ class ForegroundSOSService() : Service(), SensorEventListener {
 
         if (event != null) {
             GeolocationViewModel.loadGeolocation(event)
-            if (Math.abs(event.values[0]) > 20 || Math.abs(event.values[1]) > 20 || Math.abs(event.values[2]) > 20) {
+            if (Math.abs(event.values[0]) > 10 || Math.abs(event.values[1]) > 10 || Math.abs(event.values[2]) > 10) {
                 Log.d("doWork", "SOS")
                 //gmsLocationViewModel.findLocation()
                 gmsLocation.findLocation(true)
