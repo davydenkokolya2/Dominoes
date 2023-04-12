@@ -18,6 +18,7 @@ import com.example.calculator.DTO.LocationDTO
 import com.example.calculator.R
 import com.example.calculator.remote.OkHttp.Okhttp
 import com.example.calculator.utils.Constants
+import com.example.calculator.utils.Constants.TAG
 import com.example.calculator.viewModel.GeolocationViewModel
 import java.util.*
 
@@ -40,15 +41,15 @@ class ForegroundSOSService() : Service(), SensorEventListener {
         Log.d("doWork", "start SOS foreground")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "my_channel_2"
-            val channel =
-                NotificationChannel(channelId, "default", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(channelId, "default2", NotificationManager.IMPORTANCE_HIGH)
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            Log.d(TAG, "vibration pattern " + channel.vibrationPattern.toString())
             manager.createNotificationChannel(channel)
-
             val notification = Notification.Builder(this, channelId).apply {
                 setContentTitle("ForegroundSOSService")
                 setContentText("ForegroundSOSService")
                 setSmallIcon(R.drawable.ic_launcher_foreground)
+
             }.build()
 
             startForeground(Constants.SERVICE_ID, notification)
@@ -64,7 +65,7 @@ class ForegroundSOSService() : Service(), SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        timer.scheduleAtFixedRate( object : TimerTask() {
+        timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 gmsLocation.findLocation(false)
             }
@@ -82,6 +83,7 @@ class ForegroundSOSService() : Service(), SensorEventListener {
         }*/
         return super.onStartCommand(intent, flags, startId)
     }
+
     override fun onSensorChanged(event: SensorEvent?) {
 
 

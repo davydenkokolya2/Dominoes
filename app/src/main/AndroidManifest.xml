@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />-->
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Required for 29+. -->
@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -41,11 +43,16 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity
+            android:name=".LockscreenActivity"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true" />
         <receiver
             android:name=".recognition.ActivityTransitionReceiver"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedReceiver" />
+
         <service
             android:name=".service.ForegroundService"
             android:exported="false"

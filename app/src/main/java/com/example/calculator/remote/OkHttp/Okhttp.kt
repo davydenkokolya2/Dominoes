@@ -1,16 +1,21 @@
 package com.example.calculator.remote.OkHttp
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.os.*
 import android.util.Log
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.calculator.DTO.UserDTO
+import com.example.calculator.LockscreenActivity
 import com.example.calculator.R
 import com.example.calculator.remote.common.Common.BASE_URL
 import com.example.calculator.remote.model.Geolocation
 import com.example.calculator.remote.model.Token
 import com.example.calculator.service.ForegroundSOSService
-import com.example.calculator.utils.Constants.SERVICE_ID
 import com.example.calculator.utils.Constants.TAG
 import com.example.calculator.viewModel.TokenViewModel
 import com.google.gson.GsonBuilder
@@ -110,6 +115,7 @@ class Okhttp() {
             Log.d(TAG, "Connection Closed ${eventSource.request().isHttps}")
         }
 
+        @SuppressLint("MissingPermission")
         override fun onEvent(
             eventSource: EventSource,
             id: String?,
@@ -119,30 +125,36 @@ class Okhttp() {
             super.onEvent(eventSource, id, type, data)
             Log.d(TAG, "On Event Received! Data -: $data")
 
-            val fullScreenIntent = Intent(service, ForegroundSOSService::class.java)
+            val fullScreenIntent = Intent(service, LockscreenActivity::class.java)
             val fullScreenPendingIntent = PendingIntent.getActivity(
-                service, 0,
-                fullScreenIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                service,
+                0,
+                fullScreenIntent,
+                PendingIntent.FLAG_IMMUTABLE
             )
-
+            val channel = NotificationChannelCompat.Builder(
+                102.toString(),
+                NotificationManagerCompat.IMPORTANCE_HIGH
+            ).setName("Incoming notification")
+                .setDescription("Incoming notification alerts")
+                .setVibrationEnabled(false)
+                .build()
             val notificationBuilder =
                 NotificationCompat.Builder(service, "my_channel_2")
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentTitle("Incoming call")
-                    .setContentText("(919) 555-1234")
+                    .setContentTitle("SOS")
+                    .setContentText("Впереди авария")
+                    .setFullScreenIntent(fullScreenPendingIntent, true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
-
-                    // Use a full-screen intent only for the highest-priority alerts where you
-                    // have an associated activity that you would like to launch after the user
-                    // interacts with the notification. Also, if your app targets Android 10
-                    // or higher, you need to request the USE_FULL_SCREEN_INTENT permission in
-                    // order for the platform to invoke this notification.
                     .setFullScreenIntent(fullScreenPendingIntent, true)
+            val notificationManager = NotificationManagerCompat.from(service)
+            notificationManager.createNotificationChannel(channel)
 
-            val incomingCallNotification = notificationBuilder.build()
-            if (data == "{\"message\":\"sos\"}")
-                service.startForeground(SERVICE_ID, incomingCallNotification)
+            if (data == "{\"message\":\"sos\"}") {
+                vibrate()
+                notificationManager.notify(101, notificationBuilder.build())
+            }
         }
 
         override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {
@@ -185,6 +197,26 @@ class Okhttp() {
                 })
             }
         }
+    }
+
+    private fun vibrate() {
+        val mVibratePattern = longArrayOf(
+            0, 1000, 1000, 1000, 1000, 1000
+        )
+        val v = service.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(
+                    VibrationEffect.createWaveform(
+                        mVibratePattern,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else { //deprecated in API 26
+                v.vibrate(1000)
+            }
+
+        }, 1000)
     }
 
     fun closeConnection() {
