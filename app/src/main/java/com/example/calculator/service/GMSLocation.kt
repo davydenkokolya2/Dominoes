@@ -62,7 +62,7 @@ class GMSLocation(private val service: ForegroundSOSService, private val okHttpC
                         val latitude = it.latitude
                         val longitude = it.longitude
                         CoroutineScope(Dispatchers.IO).launch {
-                            TokenViewModel.stateUserId.collect {
+                            TokenViewModel.stateToken.collect {
                                 okHttpClient.sendGeolocation(
                                     Geolocation(
                                         latitude,

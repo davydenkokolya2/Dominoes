@@ -9,13 +9,18 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
 import com.example.calculator.databinding.ActivityMainBinding
 import com.example.calculator.recognition.ActivityRecognition
 import com.example.calculator.service.ForegroundService
+import com.example.calculator.viewModel.TokenViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+    val tokenViewModel = TokenViewModel
     //val geolocationViewModel = GeolocationViewModel()
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -24,7 +29,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
+        lifecycleScope.launch {
+            tokenViewModel.stateToken.collect {
+                if (it != null)
+                    (binding.fragmentContainer as NavHostFragment).navController.navInflater.inflate(
+                        R.navigation.main_graph
+                    ).setStartDestination(R.id.userProfileFragment)
+            }
+        }
+        //(binding.fragmentContainer as NavHostFragment).navController.navInflater.inflate(R.navigation.main_graph).setStartDestination(R.id.userProfileFragment)
 
         ActivityCompat.requestPermissions(
             this,
@@ -41,20 +54,20 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) return AlertDialog.Builder(this)
-                .setTitle("Title")
-                .setMessage("Message")
-                .setPositiveButton("Yes") { _, _ ->
-                    // this request will take user to Application's Setting page
-                    requestPermissions(
-                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        100
-                    )
-                }
-                .setNegativeButton("No") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-                .show()
+            .setTitle("Title")
+            .setMessage("Message")
+            .setPositiveButton("Yes") { _, _ ->
+                // this request will take user to Application's Setting page
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    100
+                )
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
 
 
         val activityRecognition = ActivityRecognition(this)

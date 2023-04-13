@@ -9,12 +9,6 @@
         android:name="com.example.calculator.presentation.screens.SignInFragment"
         android:label="SignInFragment">
         <action
-            android:id="@+id/action_signInFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/main_graph" />
-        <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
             app:destination="@id/signUpFragment"
             app:enterAnim="@anim/slide_in_right"
@@ -26,12 +20,6 @@
         android:id="@+id/signUpFragment"
         android:name="com.example.calculator.presentation.screens.SignUpFragment"
         android:label="SignUpFragment">
-        <action
-            android:id="@+id/action_signUpFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/main_graph" />
         <action
             android:id="@+id/action_signUpFragment_to_signInFragment"
             app:destination="@id/signInFragment"

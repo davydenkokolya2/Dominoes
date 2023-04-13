@@ -40,7 +40,7 @@ class SignInFragment : Fragment() {
                     binding.etPassword.text.toString()
                 )
             )
-            findNavController().navigate(R.id.action_signInFragment_to_userProfileFragment)
+            //findNavController().navigate(R.id.action_signInFragment_to_userProfileFragment)
         }
         binding.btnBackSignIn.setOnClickListener{
             findNavController().popBackStack()

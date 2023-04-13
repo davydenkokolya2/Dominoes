@@ -81,7 +81,7 @@ class Okhttp() {
         val body: RequestBody = jsonRequest.toRequestBody(JSON)
 
         CoroutineScope(Dispatchers.IO).launch {
-            TokenViewModel.stateUserId.collect {
+            TokenViewModel.stateToken.collect {
                 val request = Request.Builder().url(BASE_URL + "/geolocation").post(body)
                     .addHeader("Authorization", "Bearer " + it!!.accessToken)
                     .build()
@@ -171,7 +171,7 @@ class Okhttp() {
 
     fun listenServer() {
         CoroutineScope(Dispatchers.IO).launch {
-            TokenViewModel.stateUserId.collect {
+            TokenViewModel.stateToken.collect {
                 val request = Request.Builder()
                     .url(BASE_URL + "/open-sse-stream/${it?.userId}")
                     .addHeader("Authorization", "Bearer " + it!!.accessToken)

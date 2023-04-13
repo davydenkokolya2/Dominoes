@@ -36,7 +36,7 @@ class UserProfileFragment : Fragment() {
         }
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                TokenViewModel.stateUserId.collect {
+                TokenViewModel.stateToken.collect {
                     if (it != null) {
                         binding.userName.text = it.firstName
                     }
