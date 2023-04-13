@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.example.calculator.R
 import com.example.calculator.databinding.FragmentUserProfileBinding
 import com.example.calculator.viewModel.GeolocationViewModel
 import com.example.calculator.viewModel.TokenViewModel
@@ -20,7 +22,7 @@ class UserProfileFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentUserProfileBinding.inflate(inflater, container, false)
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -37,9 +39,11 @@ class UserProfileFragment : Fragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 TokenViewModel.stateToken.collect {
-                    if (it != null) {
+
+                    if (it != null)
                         binding.userName.text = it.firstName
-                    }
+                    else
+                        findNavController().navigate(R.id.action_userProfileFragment_to_startFragment)
                 }
             }
         }

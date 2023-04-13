@@ -9,13 +9,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import com.example.calculator.databinding.ActivityMainBinding
 import com.example.calculator.recognition.ActivityRecognition
 import com.example.calculator.service.ForegroundService
 import com.example.calculator.viewModel.TokenViewModel
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,14 +26,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             tokenViewModel.stateToken.collect {
                 if (it != null)
                     (binding.fragmentContainer as NavHostFragment).navController.navInflater.inflate(
                         R.navigation.main_graph
                     ).setStartDestination(R.id.userProfileFragment)
             }
-        }
+        }*/
         //(binding.fragmentContainer as NavHostFragment).navController.navInflater.inflate(R.navigation.main_graph).setStartDestination(R.id.userProfileFragment)
 
         ActivityCompat.requestPermissions(

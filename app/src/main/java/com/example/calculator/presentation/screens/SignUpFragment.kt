@@ -24,7 +24,7 @@ class SignUpFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSignUpBinding.inflate(inflater, container, false)
 
         binding.btnBackSignUp.setOnClickListener {
@@ -40,12 +40,7 @@ class SignUpFragment : BaseFragment() {
                     findNavController().navigate(R.id.action_signUpFragment_to_userProfileFragment)
             }
         }
-        /*lifecycleScope.launch {
-            ErrorViewModel.stateError.collect {
-                if (it != null)
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-            }
-        }*/
+
         return binding.root
     }
 
@@ -72,7 +67,6 @@ class SignUpFragment : BaseFragment() {
                     binding.etPassword.text.toString()
                 )
             )
-            //findNavController().navigate(R.id.action_signUpFragment_to_userProfileFragment)
         }
         super.onStart()
     }

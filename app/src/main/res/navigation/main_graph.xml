@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_graph"
-    app:startDestination="@id/startFragment">
+    app:startDestination="@id/userProfileFragment">
     <fragment
         android:id="@+id/signInFragment"
         android:name="com.example.calculator.presentation.screens.SignInFragment"
@@ -15,6 +15,10 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_signInFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment"
+            app:popUpTo="@id/main_graph" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -27,6 +31,10 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_signUpFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment"
+            app:popUpTo="@id/main_graph" />
     </fragment>
     <fragment
         android:id="@+id/startFragment"
@@ -46,12 +54,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_startFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/userProfileFragment"
         android:name="com.example.calculator.presentation.screens.UserProfileFragment"
-        android:label="UserProfileFragment" />
+        android:label="UserProfileFragment" >
+        <action
+            android:id="@+id/action_userProfileFragment_to_startFragment"
+            app:destination="@id/startFragment" />
+    </fragment>
 </navigation>
