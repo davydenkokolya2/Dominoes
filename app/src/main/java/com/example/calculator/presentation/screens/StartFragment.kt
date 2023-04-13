@@ -9,7 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.calculator.R
 import com.example.calculator.databinding.FragmentStartBinding
 
-class StartFragment: Fragment() {
+class StartFragment : Fragment() {
     lateinit var binding: FragmentStartBinding
 
     override fun onCreateView(
@@ -29,6 +29,8 @@ class StartFragment: Fragment() {
         binding.btnLogin.setOnClickListener {
             findNavController().navigate(R.id.action_startFragment_to_signInFragment)
         }
+
         super.onViewCreated(view, savedInstanceState)
     }
+
 }

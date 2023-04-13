@@ -12,7 +12,7 @@ object TokenViewModel: ViewModel() {
     private val _stateToken = MutableStateFlow<Token?>(null)
     val stateToken: StateFlow<Token?> = _stateToken
 
-    fun loadUserId(token: Token) {
+    fun loadToken(token: Token) {
         //Log.d(TAG, token.firstName)
         viewModelScope.launch(Dispatchers.IO) {
             _stateToken.emit(token)
