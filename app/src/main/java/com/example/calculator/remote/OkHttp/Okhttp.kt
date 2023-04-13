@@ -17,6 +17,7 @@ import com.example.calculator.remote.model.Geolocation
 import com.example.calculator.remote.model.Token
 import com.example.calculator.service.ForegroundSOSService
 import com.example.calculator.utils.Constants.TAG
+import com.example.calculator.viewModel.ErrorViewModel
 import com.example.calculator.viewModel.TokenViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -58,21 +59,26 @@ class Okhttp() {
         try {
             okhttpClient.newCall(request).enqueue(responseCallback = object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Log.d("doWork", e.toString())
+                    throw (e)
+                    //Log.d("doWork", e.toString())
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    TokenViewModel.loadUserId(
-                        gson.fromJson(
-                            response.body!!.string(),
-                            Token::class.java
+                    when (response.code) {
+                        200 -> TokenViewModel.loadToken(
+                            gson.fromJson(
+                                response.body!!.string(),
+                                Token::class.java
+                            )
                         )
-                    )
+                        else -> ErrorViewModel.loadError("Неверные данные")
+                    }
                 }
             })
         } catch (e: IOException) {
             Log.d("doWork", "Ошибка подключения: $e")
             println("Ошибка подключения: $e")
+            throw (e)
         }
     }
 
@@ -81,7 +87,7 @@ class Okhttp() {
         val body: RequestBody = jsonRequest.toRequestBody(JSON)
 
         CoroutineScope(Dispatchers.IO).launch {
-            TokenViewModel.stateUserId.collect {
+            TokenViewModel.stateToken.collect {
                 val request = Request.Builder().url(BASE_URL + "/geolocation").post(body)
                     .addHeader("Authorization", "Bearer " + it!!.accessToken)
                     .build()
@@ -171,7 +177,7 @@ class Okhttp() {
 
     fun listenServer() {
         CoroutineScope(Dispatchers.IO).launch {
-            TokenViewModel.stateUserId.collect {
+            TokenViewModel.stateToken.collect {
                 val request = Request.Builder()
                     .url(BASE_URL + "/open-sse-stream/${it?.userId}")
                     .addHeader("Authorization", "Bearer " + it!!.accessToken)
